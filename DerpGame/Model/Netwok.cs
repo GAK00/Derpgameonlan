@@ -14,7 +14,16 @@ namespace DerpGame.Model
 {
     public class Network
     {
-        List<Object> data = new List<Object>();
+        List<List<Object>> data = new List<List<Object>>();
+        List<Object> args = new List< Object > ();
+        List<Object> objects = new List< Object > ();
+        List<Object> players = new List<Object>();
+        public Network()
+        {
+            data.Add(args);
+            data.Add(objects);
+            data.Add(players);
+        }
         public void Client()
         {
             var Client = new UdpClient();
@@ -40,16 +49,38 @@ namespace DerpGame.Model
         private void Server()
         {
             var Server = new UdpClient(8888);
-            var ResponseData = 
+
 
             while (true)
             {
                 var ClientEp = new IPEndPoint(IPAddress.Any, 0);
                 var ClientRequestData = Server.Receive(ref ClientEp);
-                var ClientRequest = Encoding.ASCII.GetString(ClientRequestData);
+                var ClientRequest = ByteArrayToObject(ClientRequestData);
+                List < List<Object> > recivedList = (List<List<Object>>)ClientRequest;
 
-                Console.WriteLine("Recived {0} from {1}, sending response", ClientRequest, ClientEp.Address.ToString());
-                Server.Send(ResponseData, ResponseData.Length, ClientEp);
+                byte[] ResponseData;
+                if (recivedList[0].Count == 0)
+                {
+                    ResponseData = ObjectToByteArray(data);
+                }
+                else {
+                    List<String> args = new List<string>();
+                    for (int index = 0; index < recivedList[0].Count; index++)
+                    {
+                        args.Add(((String)recivedList[0][index]).ToLower());
+                    }
+                    if(args.Contains("init"))
+                    {
+                        ResponseData = ObjectToByteArray(1);
+                    }
+                    else
+                    {
+                        ResponseData = ObjectToByteArray(data);
+                    }
+
+                }
+                   Server.Send(ResponseData, ResponseData.Length, ClientEp);
+                
             }
         }
 
