@@ -1,0 +1,23 @@
+﻿<Properties StartupConfiguration="{538F1BCA-E32B-4CB9-B5C1-9C9586FB209E}|Default">
+  <MonoDevelop.Ide.ItemProperties.DerpGame PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="DerpGame/Model/Point.cs">
+    <Files>
+      <File FileName="DerpGame/Model/DankLaser.cs" Line="6" Column="2" />
+      <File FileName="DerpGame/Controller/DerpGame.cs" Line="265" Column="85" />
+      <File FileName="DerpGame/Model/MegaLaser.cs" Line="83" Column="52" />
+      <File FileName="DerpGame/View/Animation.cs" Line="148" Column="20" />
+      <File FileName="DerpGame/Model/Friend.cs" Line="7" Column="2" />
+      <File FileName="DerpGame/Model/Player.cs" Line="58" Column="23" />
+      <File FileName="../../../Downloads/Enemy.cs" Line="107" Column="1" />
+      <File FileName="DerpGame/Model/Enemy.cs" Line="7" Column="2" />
+      <File FileName="DerpGame/Model/Netwok.cs" Line="43" Column="32" />
+      <File FileName="DerpGame/Model/Point.cs" Line="7" Column="9" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release|x86" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+</Properties>
