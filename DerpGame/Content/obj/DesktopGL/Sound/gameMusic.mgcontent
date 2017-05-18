@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <SourceFile>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Sound/gameMusic.mp3</SourceFile>
+  <SourceFile>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Sound/gameMusic.mp3</SourceFile>
   <SourceTime>2017-05-15T09:52:03-06:00</SourceTime>
-  <DestFile>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/bin/DesktopGL/Sound/gameMusic.xnb</DestFile>
-  <DestTime>2017-05-15T09:52:51-06:00</DestTime>
+  <DestFile>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/bin/DesktopGL/Sound/gameMusic.xnb</DestFile>
+  <DestTime>2017-05-18T07:36:17-06:00</DestTime>
   <Importer>Mp3Importer</Importer>
   <ImporterTime>2017-03-01T08:06:24-07:00</ImporterTime>
   <Processor>SongProcessor</Processor>
@@ -15,6 +15,6 @@
   <Dependencies />
   <BuildAsset />
   <BuildOutput>
-    <string>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/bin/DesktopGL/Sound/gameMusic.ogg</string>
+    <string>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/bin/DesktopGL/Sound/gameMusic.ogg</string>
   </BuildOutput>
 </PipelineBuildEvent>

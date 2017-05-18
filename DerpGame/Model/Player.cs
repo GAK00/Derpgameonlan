@@ -6,7 +6,12 @@ namespace DerpGame.Model
 {
 	public class Player
 	{
-		// Animation representing the player
+        // Animation representing the player
+        private int id;
+        public int Id
+        {
+            get { return id; }
+        }
 		private Texture2D playerTexture;
 		private Friend friend;
 		public Friend Friend
@@ -60,6 +65,22 @@ namespace DerpGame.Model
 		}
 		public void Initialize(Animation animation, Vector2 position)
 		{
+			playerAnimation = animation;
+
+			// Set the starting position of the player around the middle of the screen and to the back
+			Position = position;
+
+			// Set the player to be active
+			Active = true;
+
+			// Set the player health
+			Health = 100;
+
+			friend.Initalize(animation.Strip, this);
+		}
+		public void Initialize(Animation animation, Vector2 position, int id)
+		{
+            this.id = id;
 			playerAnimation = animation;
 
 			// Set the starting position of the player around the middle of the screen and to the back

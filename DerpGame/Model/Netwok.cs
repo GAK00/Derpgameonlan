@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
-using System;
 using System.Net;
-using System.Net.Sockets;
 using System.Threading;
 using System.Text;
 using System.Collections.Generic;
@@ -14,12 +12,13 @@ namespace DerpGame.Model
 {
     public class Network
     {
-        List<List<Object>> data = new List<List<Object>>();
+        public    List<List<Object>> data = new List<List<Object>>();
         List<Object> args = new List< Object > ();
         List<Object> objects = new List< Object > ();
         List<Object> players = new List<Object>();
         public Network()
         {
+            data = new List<List<Object>>();
             data.Add(args);
             data.Add(objects);
             data.Add(players);
@@ -27,16 +26,14 @@ namespace DerpGame.Model
         public void Client()
         {
             var Client = new UdpClient();
-            var RequestData = Encoding.ASCII.GetBytes("YOlo");
+            var RequestData = ObjectToByteArray(data);
             var ServerEp = new IPEndPoint(IPAddress.Any, 0);
-
             Client.EnableBroadcast = true;
             Client.Send(RequestData, RequestData.Length, new IPEndPoint(IPAddress.Broadcast, 8888));
-
             var ServerResponseData = Client.Receive(ref ServerEp);
-            var ServerResponse = Encoding.ASCII.GetString(ServerResponseData);
-            Console.WriteLine("Recived {0} from {1}", ServerResponse, ServerEp.Address.ToString());
-
+            var ServerResponse = ByteArrayToObject(ServerResponseData);
+            Console.WriteLine("Recived from "+ServerEp.Address.ToString());
+            data = (List<List<Object>>)ServerResponse; 
             Client.Close();
         }
 
@@ -45,6 +42,7 @@ namespace DerpGame.Model
         {
             ThreadStart severStart = new ThreadStart(new Network().Server);
             Thread sever = new Thread(severStart);
+            sever.Start();
         }
         private void Server()
         {

@@ -4,26 +4,26 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Animation/cloud.png</File>
-    <File>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Animation/explosion.png</File>
-    <File>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Animation/mineAnimation.png</File>
-    <File>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Animation/popAnimation.png</File>
-    <File>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Animation/rainbowBullet.png</File>
-    <File>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Animation/shipAnimation.png</File>
-    <File>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Animation/solidRainbow.png</File>
-    <File>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Font/gameFont.spritefont</File>
-    <File>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Sound/explosion.wav</File>
-    <File>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Sound/gameMusic.mp3</File>
-    <File>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Sound/laserFire.wav</File>
-    <File>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Sound/menuMusic.mp3</File>
-    <File>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Texture/bgLayer1.png</File>
-    <File>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Texture/bgLayer2.png</File>
-    <File>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Texture/endMenu.png</File>
-    <File>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Texture/laser.png</File>
-    <File>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Texture/mainMenu.png</File>
-    <File>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Texture/mainbackground.png</File>
-    <File>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Texture/mine.png</File>
-    <File>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Texture/player.png</File>
-    <File>/Users/gkun9931/Documents/GameDev/DerpGame/DerpGame/Content/Sound/cloudPop.wav</File>
+    <File>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Animation/cloud.png</File>
+    <File>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Animation/explosion.png</File>
+    <File>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Animation/mineAnimation.png</File>
+    <File>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Animation/popAnimation.png</File>
+    <File>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Animation/rainbowBullet.png</File>
+    <File>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Animation/shipAnimation.png</File>
+    <File>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Animation/solidRainbow.png</File>
+    <File>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Font/gameFont.spritefont</File>
+    <File>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Sound/explosion.wav</File>
+    <File>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Sound/gameMusic.mp3</File>
+    <File>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Sound/laserFire.wav</File>
+    <File>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Sound/menuMusic.mp3</File>
+    <File>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Texture/bgLayer1.png</File>
+    <File>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Texture/bgLayer2.png</File>
+    <File>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Texture/endMenu.png</File>
+    <File>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Texture/laser.png</File>
+    <File>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Texture/mainMenu.png</File>
+    <File>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Texture/mainbackground.png</File>
+    <File>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Texture/mine.png</File>
+    <File>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Texture/player.png</File>
+    <File>/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/Content/Sound/cloudPop.wav</File>
   </SourceFiles>
 </SourceFileCollection>

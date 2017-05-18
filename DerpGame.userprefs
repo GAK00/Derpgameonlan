@@ -1,9 +1,9 @@
 ﻿<Properties StartupConfiguration="{538F1BCA-E32B-4CB9-B5C1-9C9586FB209E}|Default">
   <MonoDevelop.Ide.ItemProperties.DerpGame PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="DerpGame/Controller/DerpGame.cs">
+  <MonoDevelop.Ide.Workbench>
     <Files>
       <File FileName="DerpGame/Model/DankLaser.cs" Line="6" Column="2" />
-      <File FileName="DerpGame/Controller/DerpGame.cs" Line="265" Column="85" />
+      <File FileName="DerpGame/Controller/Controller.cs" Line="69" Column="23" />
       <File FileName="DerpGame/Model/MegaLaser.cs" Line="83" Column="52" />
       <File FileName="DerpGame/View/Animation.cs" Line="148" Column="20" />
       <File FileName="DerpGame/Model/Friend.cs" Line="7" Column="2" />

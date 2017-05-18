@@ -2,14 +2,14 @@
 namespace DerpGame.Model
 {
     [Serializable()]
-    public class Point
+    public class SPoint
     {
-        public int x;
-        public int y;
+        public float x;
+        public float y;
         public float theta;
         public int id;
 
-        public Point(int x, int y, float theta, int id)
+        public SPoint(float x, float y, float theta, int id)
         {
 
             this.x = x;

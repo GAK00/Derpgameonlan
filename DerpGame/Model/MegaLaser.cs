@@ -14,6 +14,10 @@ namespace DerpGame
 			get { return texture; }
 		}
 		private float theta;
+        public float Theta
+        {
+            get { return theta; }
+        }
 		public Vector2 Direction;
 		// State of the Projectile
 		private bool active;
