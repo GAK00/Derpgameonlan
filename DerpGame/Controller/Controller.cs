@@ -207,7 +207,7 @@ namespace DerpGame.Controller
                     hasBooted = true;
                     Initialize();
                     LoadContent();
-                    network = new Network();
+                    network = new Network(gameTime);
                 }
                 else if (currentKeyboardState.IsKeyDown(Keys.S))
                 {
@@ -216,8 +216,7 @@ namespace DerpGame.Controller
                     Initialize();
                     LoadContent();
                     Console.WriteLine("Init");
-                    network = new Network();
-                    network.StartSever();
+                    network = new Network(gameTime);
                     Console.WriteLine("Live");
                 }
             }
@@ -228,17 +227,44 @@ namespace DerpGame.Controller
 
                     bgLayer1.Update();
                     bgLayer2.Update();
+                    network.StartClient(gameTime);
+					if (network.data != null && network.data.Count > 0)
+					{
+                        enemies.Clear();
+						List<Object> objs = network.data[1];
+						foreach (Object obj in objs)
+						{
+							if (obj is SPoint)
+							{
+								if (obj != null)
+								{
+									SPoint point = (SPoint)obj;
+									if (point.id == 0)
+									{
+                                        Console.WriteLine(point.x);
+										Enemy enemy = new Enemy(false);
+										Animation animate = new Animation();
+										animate.Initialize(enemyTexture, new Vector2(point.x, point.y), 47, 61, 8, 30, Color.White, 1f, true);
+                                        animate.Update(gameTime);
+										enemy.Initialize(animate, new Vector2(point.x, point.y));
+										enemies.Add(enemy);
+									}
+								}
+							}
+						}
+					}
                     //UpdateClient();
                 }
                 else
                 {
+                    Console.WriteLine("ok");
                     UpdatePlayer(gameTime);
                     UpdateEnemies(gameTime);
                     UpdateCollision();
                     UpdateProjectiles(gameTime);
                     UpdateExplosions(gameTime);
                     UpdatePops(gameTime);
-
+                    Console.WriteLine("ok");
                     List<Object> points = new List<Object>();
                     foreach (Enemy enemy in enemies)
                     {
@@ -246,10 +272,6 @@ namespace DerpGame.Controller
                         if (enemy.IsCloud)
                         {
                             id = 1;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Enemy");
                         }
                         points.Add(new SPoint(enemy.Position.X, enemy.Position.Y, 0, id));
                     }
@@ -278,12 +300,18 @@ namespace DerpGame.Controller
                     {
                         playersP.Add(new SPoint(player.Position.X,player.Position.Y, 0,player.Id));
                     }
+                    Console.WriteLine("ok");
                     List<List<Object>> toSend = new List<List<Object>>();
                     List < Object > strings = new List<Object>();
                     toSend.Add(strings);
                     toSend.Add(points);
                     toSend.Add(playersP);
                     network.data = toSend;
+					Console.WriteLine("ok");
+                    network.StartSever(gameTime);
+                    Console.WriteLine("update");
+					
+
                 }
                 base.Update(gameTime);
             }
@@ -300,36 +328,7 @@ namespace DerpGame.Controller
             if(hasBooted){
                 if (side == 0)
                 {
-                    Console.WriteLine("Draw");
-                    network.Client();
-                    if (network.data != null && network.data.Count > 0) { 
-                        Console.WriteLine("Add");
-                        List<Object> objs = network.data[1];
-                        Console.WriteLine(objs.Count);
-                    foreach (Object obj in objs)
-                    {
-                            Console.WriteLine("Add");
-                            if (obj is SPoint)
-                            {
-                                Console.WriteLine("Add");
-                                if (obj != null)
-                                {
-                                    Console.WriteLine("Add");
-                                    SPoint point = (SPoint)obj;
-                                    if (point.id == 0)
-                                    {
 
-                    Console.WriteLine("Add");
-                                        Enemy enemy = new Enemy(false);
-                                        Animation animate = new Animation();
-                                        animate.Initialize(enemyTexture, new Vector2(point.x, point.y), 47, 61, 8, 30, Color.White, 1f, true);
-                                        enemy.Initialize(animate, new Vector2(point.x, point.y));
-                                        enemies.Add(enemy);
-                                    }
-                                }
-                            }
-                    }
-                }
                     spriteBatch.Begin();
 
                     spriteBatch.Draw(mainBackground, Vector2.Zero, Color.White);
@@ -341,6 +340,7 @@ namespace DerpGame.Controller
                     player.Draw(spriteBatch);
                     for (int i = 0; i < enemies.Count; i++)
                     {
+                        Console.WriteLine("Draw");
                         enemies[i].Draw(spriteBatch);
                     }
 
