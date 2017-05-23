@@ -1,20 +1,14 @@
 ﻿<Properties StartupConfiguration="{538F1BCA-E32B-4CB9-B5C1-9C9586FB209E}|Default">
-  <MonoDevelop.Ide.ItemProperties.DerpGame PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workbench ActiveDocument="DerpGame/Model/Player.cs">
     <Files>
-      <File FileName="DerpGame/Model/DankLaser.cs" Line="18" Column="33" />
-      <File FileName="DerpGame/Controller/Controller.cs" Line="252" Column="47" />
-      <File FileName="DerpGame/Model/MegaLaser.cs" Line="19" Column="30" />
-      <File FileName="DerpGame/View/Animation.cs" Line="148" Column="20" />
-      <File FileName="DerpGame/Model/Friend.cs" Line="7" Column="2" />
-      <File FileName="DerpGame/Model/Player.cs" Line="83" Column="26" />
-      <File FileName="../../../Downloads/Enemy.cs" Line="107" Column="1" />
-      <File FileName="DerpGame/Model/Enemy.cs" Line="7" Column="2" />
-      <File FileName="DerpGame/Model/Netwok.cs" Line="70" Column="30" />
-      <File FileName="DerpGame/Model/Point.cs" Line="12" Column="37" />
+      <File FileName="DerpGame/Model/Netwok.cs" Line="245" Column="26" />
+      <File FileName="DerpGame/Controller/Controller.cs" Line="527" Column="104" />
+      <File FileName="DerpGame/Model/Point.cs" Line="20" Column="32" />
+      <File FileName="DerpGame/Model/MegaLaser.cs" Line="72" Column="53" />
+      <File FileName="DerpGame/Model/Player.cs" Line="69" Column="21" />
     </Files>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release|x86" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

@@ -89,7 +89,7 @@ namespace DerpGame
                 this.texture.Position.X += projectileMoveSpeed * Direction.X;
                 this.texture.Position.Y += projectileMoveSpeed * Direction.Y;
                 // Deactivate the bullet if it goes out of screen
-                if ((((this.texture.Position.X > viewport.Width && this.Direction.X > 0) || (this.texture.Position.X < 0 && this.Direction.X < 0)) || ((this.texture.Position.Y > viewport.Height && this.Direction.Y > 0) || (this.texture.Position.Y < 0 && this.Direction.Y < 0))) && generation >= 14)
+                if ((((this.texture.Position.X > viewport.Width && this.Direction.X > 0) || (this.texture.Position.X < 0 && this.Direction.X < 0)) || ((this.texture.Position.Y > viewport.Height && this.Direction.Y > 0) || (this.texture.Position.Y < 0 && this.Direction.Y < 0))) && generation >= 10)
                 {
 					this.active = false;
 					this.texture.Position.X += projectileMoveSpeed * Direction.X * -2;

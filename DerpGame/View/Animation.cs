@@ -25,6 +25,10 @@ namespace DerpGame.View
 
 		// The index of the current frame we are displaying
 		private int currentFrame;
+        public int CurrentFrame
+        {
+            get { return currentFrame; }
+        }
 
 		// The color of the frame we will be displaying
 		private Color color;

@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Input;
 using DerpGame.Model;
 using DerpGame.View;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
 using System.Threading;
@@ -48,7 +49,7 @@ namespace DerpGame.Controller
 		private int score;
 		private SpriteFont scoreFont;
 		private List<DankLaser> dankLasers;
-		private List<MegaLaser> megaLasers;
+		public List<MegaLaser> megaLasers;
 		private Texture2D dankBulletTexture;
 		private Texture2D psychBulletTexture;
 		private List<Animation> pops;
@@ -63,18 +64,21 @@ namespace DerpGame.Controller
 		private Song gameplayMusic;
         private int side;
         private Boolean hasBooted;
-        private List<Player> players;
+        public ConcurrentBag<Player> players;
         private Network network;
-
-		#endregion
-		public DerpGame()
+        public Texture2D playerTexture;
+        private List<Animation> drawPlayers;
+        private List<Animation> friends;
+        #endregion
+        public DerpGame()
 		{
             side = -1;
             hasBooted = false;
 
                 graphics = new GraphicsDeviceManager(this);
                 Content.RootDirectory = "Content";
-		}
+
+        }
 		/// <summary>
 		/// Allows the game to perform any initialization it needs to before starting to run.
 		/// This is where it can query for any required services and load any non-graphic
@@ -85,27 +89,25 @@ namespace DerpGame.Controller
 		{
             if (hasBooted)
             {
-                Console.WriteLine("Start");
+                drawPlayers = new List<Animation>();
+                friends = new List<Animation>();
                 pops = new List<Animation>();
                 player = new Player();
                 enemies = new List<Enemy>();
                 megaLasers = new List<MegaLaser>();
-                Console.WriteLine("Mid");
                 // Set the time keepers to zero
                 previousSpawnTime = TimeSpan.Zero;
 
                 // Used to determine how fast enemy respawns
-                enemySpawnTime = TimeSpan.FromSeconds(1f);
+                enemySpawnTime = TimeSpan.FromSeconds(.7f);
                 // Initialize our random number generator
                 random = new Random();
                 projectiles = new List<Projectile>();
                 dankLasers = new List<DankLaser>();
-                Console.WriteLine("Almost");
                 // Set the laser to fire every quarter second
                 fireTime = TimeSpan.FromSeconds(.15f);
                 dankTime = TimeSpan.FromSeconds(.4f);
                 previousDankTime = TimeSpan.Zero;
-                Console.WriteLine("End");
                 explosions = new List<Animation>();
                 score = 0;
 
@@ -116,9 +118,10 @@ namespace DerpGame.Controller
                 }
                 else
                 {
-                    players = new List<Player>();
+                    players = new ConcurrentBag<Player>();
                 }
-                Console.WriteLine("OK");
+
+
                 base.Initialize();
             }
 		}
@@ -131,24 +134,21 @@ namespace DerpGame.Controller
 		{
             if (hasBooted)
             {
-                    Console.WriteLine("Start");   
                     spriteBatch = new SpriteBatch(GraphicsDevice);
-                Console.WriteLine("Start");
+                
 				Animation playerAnimation = new Animation();
-                Console.WriteLine("Start");
-                    Texture2D playerTexture = Content.Load<Texture2D>("Animation/shipAnimation");
-                Console.WriteLine("Start");
+                
+                    playerTexture = Content.Load<Texture2D>("Animation/shipAnimation");
+                
                     dankBulletTexture = Content.Load<Texture2D>("Animation/rainbowBullet");
-                Console.WriteLine("Start");
+                
                     psychBulletTexture = Content.Load<Texture2D>("Animation/solidRainbow");
-                Console.WriteLine("Start");
+                
                     playerAnimation.Initialize(playerTexture, Vector2.Zero, 115, 69, 8, 30, Color.White, 1f, true);
-                Console.WriteLine("Star");
                     Vector2 playerPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y
                     + GraphicsDevice.Viewport.TitleSafeArea.Height / 2);
-                Console.WriteLine("Start");
+                
                     player.Initialize(playerAnimation, playerPosition);
-                Console.WriteLine("MID");
                     mainBackground = Content.Load<Texture2D>("Texture/mainbackground");
                     enemyTexture = Content.Load<Texture2D>("Animation/mineAnimation");
                     projectileTexture = Content.Load<Texture2D>("Texture/laser");
@@ -172,7 +172,6 @@ namespace DerpGame.Controller
 					popSound = Content.Load<SoundEffect>("Sound/cloudPop");
                     PlayMusic(gameplayMusic);
                 }
-                Console.WriteLine("END");
             }
 		}
 
@@ -207,7 +206,9 @@ namespace DerpGame.Controller
                     hasBooted = true;
                     Initialize();
                     LoadContent();
-                    network = new Network(gameTime);
+                    network = new Network(gameTime, this);
+
+                    network.StartClient(gameTime);
                 }
                 else if (currentKeyboardState.IsKeyDown(Keys.S))
                 {
@@ -215,57 +216,178 @@ namespace DerpGame.Controller
                     hasBooted = true;
                     Initialize();
                     LoadContent();
-                    Console.WriteLine("Init");
-                    network = new Network(gameTime);
-                    Console.WriteLine("Live");
+                    network = new Network(gameTime, this);
+
+                    network.StartSever(gameTime);
                 }
             }
             if (hasBooted)
             {
                 if (side == 0)
                 {
-
                     bgLayer1.Update();
                     bgLayer2.Update();
-                    network.StartClient(gameTime);
+                    UpdateClient();
 					if (network.data != null && network.data.Count > 0)
-					{
-                        enemies.Clear();
-						List<Object> objs = network.data[1];
-						foreach (Object obj in objs)
-						{
-							if (obj is SPoint)
-							{
-								if (obj != null)
-								{
-									SPoint point = (SPoint)obj;
-									if (point.id == 0)
-									{
-                                        Console.WriteLine(point.x);
-										Enemy enemy = new Enemy(false);
-										Animation animate = new Animation();
-										animate.Initialize(enemyTexture, new Vector2(point.x, point.y), 47, 61, 8, 30, Color.White, 1f, true);
+                    { 
+                       
+                        List<SPoint> objs = new List<SPoint>();
+                        while (!network.data.IsEmpty) { 
+                            SPoint Out;
+                            network.data.TryDequeue(out Out);
+                            while (Out == null)
+                            {
+                                network.data.TryDequeue(out Out);
+                                Thread.Sleep(1);
+                            }
+                            objs.Add(Out);
+                        }
+
+                        List<Enemy> enemies = new List<Enemy>();
+                        List<Animation> players = new List<Animation>();
+                        List<DankLaser> lasers = new List<DankLaser>();
+                        List<MegaLaser> megalasers = new List<MegaLaser>();
+                        List<Projectile> projectiles = new List<Projectile>();
+                        List<Animation> pops = new List<Animation>();
+                        List<Animation> explosions = new List<Animation>();
+                        List<Animation> friends = new List<Animation>();
+                        if (objs.Count >= objs[0].expected)
+                        {
+                            for (int index = 0; index < objs.Count; index++)
+                            {
+                                if (objs[index].id == 0)
+                                {
+                                    Enemy enemy = new Enemy(false);
+                                    Animation animate = new Animation();
+                                    animate.Initialize(enemyTexture, new Vector2(objs[index].x, objs[index].y), 47, 61, 8, 30, Color.White, 1f, true);
+                                    for (int i = 0; i < objs[index].Frame; i++)
+                                    {
                                         animate.Update(gameTime);
-										enemy.Initialize(animate, new Vector2(point.x, point.y));
-										enemies.Add(enemy);
-									}
-								}
-							}
-						}
+                                    }
+                                    enemy.Initialize(animate, new Vector2(objs[index].x, objs[index].y));
+                                    enemies.Add(enemy);
+                                }
+
+                                if (objs[index].id == 1)
+                                {
+                                    Enemy enemy = new Enemy(true);
+                                    Animation animate = new Animation();
+                                    animate.Initialize(cloudStrip, new Vector2(objs[index].x, objs[index].y), 64, 64, 8, 30, Color.White, 1f, true);
+                                    for (int i = 0; i < objs[index].Frame; i++)
+                                    {
+                                        animate.Update(gameTime);
+                                    }
+                                    enemy.Initialize(animate, new Vector2(objs[index].x, objs[index].y));
+                                    enemies.Add(enemy);
+                                }
+                                if (objs[index].id == 2)
+                                {
+                                    Projectile projectile = new Projectile();
+                                    projectile.Initialize(GraphicsDevice.Viewport, projectileTexture, new Vector2(objs[index].x, objs[index].y));
+                                    projectiles.Add(projectile);
+                                }
+                                if (objs[index].id == 3)
+                                {
+                                    Animation dankBullet = new Animation();
+                                    dankBullet.Initialize(dankBulletTexture, new Vector2(objs[index].x, objs[index].y), (dankBulletTexture.Width / 20), dankBulletTexture.Height, 20, 1, Color.White, 1f, true);
+                                    DankLaser dank = new DankLaser();
+                                    dank.Initialize(GraphicsDevice.Viewport, dankBullet, new Vector2(objs[index].x, objs[index].y), objs[index].theta, 1);
+                                    for (int i = 0; i < objs[index].Frame; i++)
+                                    {
+                                        dankBullet.Update(gameTime);
+                                    }
+                                    lasers.Add(dank);
+                                }
+                                if (objs[index].id == 4)
+                                {
+                                    Animation dankBullet = new Animation();
+                                    dankBullet.Initialize(psychBulletTexture, new Vector2(objs[index].x, objs[index].y), (psychBulletTexture.Width / 6), psychBulletTexture.Height, 6, 1, Color.White, 1f, true);
+                                    MegaLaser laser = new MegaLaser();
+                                    laser.Initialize(GraphicsDevice.Viewport, dankBullet, new Vector2(objs[index].x, objs[index].y), objs[index].theta, 1, 50, gameTime.TotalGameTime.TotalSeconds);
+                                    for (int i = 0; i < objs[index].Frame; i++)
+                                    {
+                                        dankBullet.Update(gameTime);
+                                    }
+                                    megalasers.Add(laser);
+                                }
+                                if (objs[index].id == 5)
+                                {
+                                    Animation pop = new Animation();
+                                    pop.Initialize(popStrip, new Vector2(objs[index].x, objs[index].y), popStrip.Width / 6, popStrip.Height, 6, 60, Color.White, 1f, false);
+                                    for (int i = 0; i < objs[index].Frame; i++)
+                                    {
+                                        pop.Update(gameTime);
+                                    }
+                                    pops.Add(pop);
+                                }
+                                if (objs[index].id == 6)
+                                {
+                                    Animation explosion = new Animation();
+                                    explosion.Initialize(explosionTexture, new Vector2(objs[index].x, objs[index].y), 134, 134, 12, 45, Color.White, 1f, false);
+                                    for (int i = 0; i < objs[index].Frame; i++)
+                                    {
+                                        explosion.Update(gameTime);
+                                    }
+                                    explosions.Add(explosion);
+                                }
+                                if (objs[index].id == 7)
+                                {
+                                    Animation animate = new Animation();
+                                    animate.Initialize(playerTexture, new Vector2(objs[index].x, objs[index].y), 115, 69, 8, 30, Color.White, 1f, true);
+                                    for (int i = 0; i < objs[index].Frame; i++)
+                                    {
+                                        animate.Update(gameTime);
+                                    }
+                                    players.Add(animate);
+                                }
+                                if (objs[index].id == 8)
+                                {
+                                    Animation animate = new Animation();
+                                    animate.Initialize(playerTexture, new Vector2(objs[index].x, objs[index].y), 115, 69, 8, 30, Color.White, .75f, true);
+                                    for (int i = 0; i < objs[index].Frame; i++)
+                                    {
+                                        animate.Update(gameTime);
+                                    }
+                                    friends.Add(animate);
+
+                                }
+                            }
+
+                            this.enemies = enemies;
+                            this.drawPlayers = players;
+                            this.projectiles = projectiles;
+                            this.dankLasers = lasers;
+                            this.megaLasers = megalasers;
+                            this.pops = pops;
+                            this.explosions = explosions;
+                            this.friends = friends;
+                        }
+
+
+                        
+									
+								
 					}
+						
+					
                     //UpdateClient();
                 }
                 else
                 {
-                    Console.WriteLine("ok");
                     UpdatePlayer(gameTime);
                     UpdateEnemies(gameTime);
                     UpdateCollision();
                     UpdateProjectiles(gameTime);
                     UpdateExplosions(gameTime);
                     UpdatePops(gameTime);
-                    Console.WriteLine("ok");
-                    List<Object> points = new List<Object>();
+                    List<SPoint> points = new List<SPoint>();
+
+                    foreach(Player player in players)
+                    {
+                        points.Add(new SPoint(player.Position.X,player.Position.Y, 0,7, player.animation.CurrentFrame + 1));
+                        points.Add(new SPoint(player.Friend.Position.X, player.Friend.Position.Y, 0, 8,player.animation.CurrentFrame + 1));
+
+                    }
                     foreach (Enemy enemy in enemies)
                     {
                         int id = 0;
@@ -273,43 +395,36 @@ namespace DerpGame.Controller
                         {
                             id = 1;
                         }
-                        points.Add(new SPoint(enemy.Position.X, enemy.Position.Y, 0, id));
+                        points.Add(new SPoint(enemy.Position.X, enemy.Position.Y, 0, id, enemy.EnemyAnimation.CurrentFrame+1));
                     }
                     foreach (Projectile bullet in projectiles)
                     {
-                        points.Add(new SPoint(bullet.Position.X, bullet.Position.Y, 0, 2));
+                        points.Add(new SPoint(bullet.Position.X, bullet.Position.Y, 0, 2, 0));
                     }
                     foreach (DankLaser laser in dankLasers)
                     {
-                        points.Add(new SPoint(laser.Texture.Position.X, laser.Texture.Position.Y, laser.Theta, 3));
+                        points.Add(new SPoint(laser.Texture.Position.X, laser.Texture.Position.Y, laser.Theta, 3,laser.Texture.CurrentFrame+1));
                     }
                     foreach (MegaLaser laser in megaLasers)
                     {
-                        points.Add(new SPoint(laser.Texture.Position.X, laser.Texture.Position.Y,laser.Theta,4));
+                        points.Add(new SPoint(laser.Texture.Position.X, laser.Texture.Position.Y,laser.Theta,4, laser.Texture.CurrentFrame +1));
                     }
                     foreach(Animation pop in pops)
                     {
-                        points.Add(new SPoint(pop.Position.X,pop.Position.Y,0,5));
+                        points.Add(new SPoint(pop.Position.X,pop.Position.Y,0,5, pop.CurrentFrame +1));
                     }
                     foreach(Animation explosion in explosions)
                     {
-                        points.Add(new SPoint(explosion.Position.X,explosion.Position.Y,0,6));
+                        points.Add(new SPoint(explosion.Position.X,explosion.Position.Y,0,6,explosion.CurrentFrame+1));
                     }
-                    List<Object> playersP = new List<Object>();
-                    foreach(Player player in players)
+                    for (int index = 0; index < points.Count; index++)
                     {
-                        playersP.Add(new SPoint(player.Position.X,player.Position.Y, 0,player.Id));
+                        points[index].expected = points.Count;
                     }
-                    Console.WriteLine("ok");
-                    List<List<Object>> toSend = new List<List<Object>>();
-                    List < Object > strings = new List<Object>();
-                    toSend.Add(strings);
-                    toSend.Add(points);
-                    toSend.Add(playersP);
-                    network.data = toSend;
-					Console.WriteLine("ok");
-                    network.StartSever(gameTime);
-                    Console.WriteLine("update");
+                    for (int index = 0; index < points.Count; index++)
+                    {
+                        network.data.Enqueue(points[index]);
+                    }
 					
 
                 }
@@ -328,11 +443,13 @@ namespace DerpGame.Controller
             if(hasBooted){
                 if (side == 0)
                 {
-
                     spriteBatch.Begin();
 
                     spriteBatch.Draw(mainBackground, Vector2.Zero, Color.White);
-
+                    if (drawPlayers.Count < 0)
+                    {
+                        Console.WriteLine("AHHHH");
+                    }
                     // Draw the moving background
                     bgLayer1.Draw(spriteBatch);
                     bgLayer2.Draw(spriteBatch);
@@ -340,7 +457,6 @@ namespace DerpGame.Controller
                     player.Draw(spriteBatch);
                     for (int i = 0; i < enemies.Count; i++)
                     {
-                        Console.WriteLine("Draw");
                         enemies[i].Draw(spriteBatch);
                     }
 
@@ -364,10 +480,30 @@ namespace DerpGame.Controller
                     {
                         pops[i].Draw(spriteBatch);
                     }
-                    spriteBatch.DrawString(scoreFont, "score: " + score, new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y), Color.White);
+                    for (int i = 0; i < drawPlayers.Count; i++)
+                    {
+                        drawPlayers[i].Draw(spriteBatch);
+                    }
+                    for (int i = 0; i < friends.Count; i++)
+                    {
+                        friends[i].Draw(spriteBatch);
+                    }
+                    //spriteBatch.DrawString(scoreFont, "score: " + score, new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y), Color.White);
                     // Draw the player health
-                    spriteBatch.DrawString(scoreFont, "health: " + player.Health, new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y + 30), Color.White);
+                    //spriteBatch.DrawString(scoreFont, "health: " + player.Health, new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y + 30), Color.White);
                     // Stop drawing
+                    spriteBatch.End();
+                }
+                if (side == 1)
+                {
+                    spriteBatch.Begin();
+                    int y = 0;
+                    int x = 0;
+                    foreach(Player player in players)
+                    {
+                        spriteBatch.DrawString(scoreFont, player.Id, new Vector2(x, y), Color.Black);
+                            y += 50;
+                    }
                     spriteBatch.End();
                 }
             }
@@ -376,55 +512,31 @@ namespace DerpGame.Controller
 		}
 		private void UpdatePlayer(GameTime time)
 		{
+            bool resetTimings = false;
+            bool otherTimings = false;
             foreach (Player player in players)
             {
                 player.Update(time);
-                // Get Thumbstick Controls
-                player.Position.X += currentGamePadState.ThumbSticks.Left.X * player.MovementSpeed;
-                player.Position.Y -= currentGamePadState.ThumbSticks.Left.Y * player.MovementSpeed;
-
-                // Use the Keyboard / Dpad
-                if (currentKeyboardState.IsKeyDown(Keys.Left) || currentKeyboardState.IsKeyDown(Keys.A) ||
-                currentGamePadState.DPad.Left == ButtonState.Pressed)
-                {
-                    player.Position.X -= player.MovementSpeed;
-                }
-                if (currentKeyboardState.IsKeyDown(Keys.Right) || currentKeyboardState.IsKeyDown(Keys.D) ||
-                currentGamePadState.DPad.Right == ButtonState.Pressed)
-                {
-                    player.Position.X += player.MovementSpeed;
-                }
-                if (currentKeyboardState.IsKeyDown(Keys.Up) || currentKeyboardState.IsKeyDown(Keys.W) ||
-                currentGamePadState.DPad.Up == ButtonState.Pressed)
-                {
-                    player.Position.Y -= player.MovementSpeed;
-                }
-                if (currentKeyboardState.IsKeyDown(Keys.Down) || currentKeyboardState.IsKeyDown(Keys.S) ||
-                currentGamePadState.DPad.Down == ButtonState.Pressed)
-                {
-                    player.Position.Y += player.MovementSpeed;
-                }
-                if (currentKeyboardState.IsKeyDown(Keys.Space))
+                if (player.spacePressed == true)
                 {
                     if (megaLasers.Count == 0)
                     {
                         Animation dankBullet = new Animation();
                         dankBullet.Initialize(psychBulletTexture, player.Position, (psychBulletTexture.Width / 6), psychBulletTexture.Height, 6, 1, Color.White, 1f, true);
                         MegaLaser laser = new MegaLaser();
-                        laser.Initialize(GraphicsDevice.Viewport, dankBullet, player.Position, 0, 1, 50, time.TotalGameTime.TotalSeconds);
+                        laser.Initialize(GraphicsDevice.Viewport, dankBullet, player.Position, 0, 1, 15, time.TotalGameTime.TotalSeconds);
                         megaLasers.Add(laser);
                     }
+                    player.spacePressed = false;
                 }
-
                 // Make sure that the player does not go out of bounds
                 player.Position.X = MathHelper.Clamp(player.Position.X, 0, GraphicsDevice.Viewport.Width - player.Width);
                 player.Position.Y = MathHelper.Clamp(player.Position.Y, 0, GraphicsDevice.Viewport.Height - player.Height);
                 // Fire only every interval we set as the fireTime
                 if (time.TotalGameTime - (previousFireTime) > fireTime)
                 {
-                    Console.WriteLine("Pew");
                     // Reset our current time
-                    previousFireTime = time.TotalGameTime;
+                    otherTimings = true;
 
                     // Add the projectile, but add it to the front and center of the player
                     AddProjectile(player.Position + new Vector2(player.Width / 2, 0));
@@ -432,8 +544,7 @@ namespace DerpGame.Controller
                 }
                 if (time.TotalGameTime - previousDankTime > dankTime)
                 {
-                    Console.WriteLine("dank");
-                    previousDankTime = time.TotalGameTime;
+                    resetTimings = true;
                     int detail = random.Next(4, 9);
                     int max = detail * 2;
                     int start = random.Next(0, max - ((max * 2) / 3));
@@ -447,7 +558,45 @@ namespace DerpGame.Controller
                     score = 0;
                 }
             }
-		}
+
+            if (resetTimings)
+            {
+                previousDankTime = time.TotalGameTime;
+            }
+            if (otherTimings)
+            {
+                previousFireTime = time.TotalGameTime;
+            }
+        }
+        private void UpdateClient()
+        {
+
+            // Use the Keyboard / Dpad
+            if (currentKeyboardState.IsKeyDown(Keys.Left) || currentKeyboardState.IsKeyDown(Keys.A) ||
+            currentGamePadState.DPad.Left == ButtonState.Pressed)
+            {
+                network.request += "a";
+            }
+            if (currentKeyboardState.IsKeyDown(Keys.Right) || currentKeyboardState.IsKeyDown(Keys.D) ||
+            currentGamePadState.DPad.Right == ButtonState.Pressed)
+            {
+                network.request += "d";
+            }
+            if (currentKeyboardState.IsKeyDown(Keys.Up) || currentKeyboardState.IsKeyDown(Keys.W) ||
+            currentGamePadState.DPad.Up == ButtonState.Pressed)
+            {
+                network.request += "w";
+            }
+            if (currentKeyboardState.IsKeyDown(Keys.Down) || currentKeyboardState.IsKeyDown(Keys.S) ||
+            currentGamePadState.DPad.Down == ButtonState.Pressed)
+            {
+                network.request += "s";
+            }
+            if (currentKeyboardState.IsKeyDown(Keys.Space))
+            {
+                network.request += " ";
+            }
+        }
 		private void AddEnemy()
 		{
 			// Create the animation object
@@ -797,7 +946,8 @@ namespace DerpGame.Controller
 		{
 			enemySpawnTime = TimeSpan.FromSeconds(time);
 			time = time - 0.0001f;
-			Console.WriteLine(enemySpawnTime.ToString());
+
+
 		}
 		//else if(!(enemySpawnTime = 0.8f))
 		//{

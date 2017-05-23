@@ -7,13 +7,14 @@ namespace DerpGame.Model
 	public class Player
 	{
         // Animation representing the player
-        private int id;
-        public int Id
+        private String id;
+        public String Id
         {
             get { return id; }
         }
 		private Texture2D playerTexture;
 		private Friend friend;
+        private int points = 0;
 		public Friend Friend
 		{
 			get { return friend;}
@@ -57,7 +58,12 @@ namespace DerpGame.Model
 			get { return movementSpeed; }
 			set { movementSpeed = value; }
 		}
+        public bool spacePressed = false;
 		private Animation playerAnimation;
+        public Animation animation
+        {
+            get { return playerAnimation; }
+        }
 		public Player()
 		{
 			movementSpeed = 2.5f;
@@ -78,7 +84,7 @@ namespace DerpGame.Model
 
 			friend.Initalize(animation.Strip, this);
 		}
-		public void Initialize(Animation animation, Vector2 position, int id)
+		public void Initialize(Animation animation, Vector2 position, String id)
 		{
             this.id = id;
 			playerAnimation = animation;
