@@ -12,13 +12,15 @@ namespace DerpGame.Model
         {
             get { return id; }
         }
+
+        public int points = 0;
 		private Texture2D playerTexture;
 		private Friend friend;
-        private int points = 0;
 		public Friend Friend
 		{
 			get { return friend;}
 		}
+
 		public Texture2D PlayerTexture
 		{
 			get { return playerTexture; }
@@ -66,7 +68,7 @@ namespace DerpGame.Model
         }
 		public Player()
 		{
-			movementSpeed = 2.5f;
+			movementSpeed = 4.25f;
 			friend = new Friend();
 		}
 		public void Initialize(Animation animation, Vector2 position)

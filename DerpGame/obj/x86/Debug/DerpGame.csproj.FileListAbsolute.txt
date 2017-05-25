@@ -38,3 +38,4 @@
 /Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/obj/x86/Debug/DerpGame.csprojResolveAssemblyReference.cache
 /Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/obj/x86/Debug/DerpGame.csproj.CoreCompileInputs.cache
 /Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/obj/x86/Debug/DerpGame.exe
+/Users/gkun9931/Documents/GameDev/DerpGame copy/DerpGame/bin/Debug/Content/Animation/localPlayerAnimation.xnb

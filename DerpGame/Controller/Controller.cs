@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
 using System.Threading;
+using System.Net;
 namespace DerpGame.Controller
 {
 	/// <summary>
@@ -69,6 +70,10 @@ namespace DerpGame.Controller
         public Texture2D playerTexture;
         private List<Animation> drawPlayers;
         private List<Animation> friends;
+        private float id;
+        private int maxScore;
+        private int health;
+        private Texture2D localTexture;
         #endregion
         public DerpGame()
 		{
@@ -87,6 +92,15 @@ namespace DerpGame.Controller
 		/// </summary>
 		protected override void Initialize()
 		{
+            String Id = Dns.GetHostAddresses(Dns.GetHostName())[0].ToString().Replace(".","");
+            Console.WriteLine(Id);
+			id = int.Parse(Id);
+            Console.WriteLine(id);
+            health = 100;
+            maxScore = 0;
+			graphics.PreferredBackBufferWidth = 1400;
+			graphics.PreferredBackBufferHeight = 840;
+            graphics.ApplyChanges();
             if (hasBooted)
             {
                 drawPlayers = new List<Animation>();
@@ -99,14 +113,14 @@ namespace DerpGame.Controller
                 previousSpawnTime = TimeSpan.Zero;
 
                 // Used to determine how fast enemy respawns
-                enemySpawnTime = TimeSpan.FromSeconds(.7f);
+                enemySpawnTime = TimeSpan.FromSeconds(.8f);
                 // Initialize our random number generator
                 random = new Random();
                 projectiles = new List<Projectile>();
                 dankLasers = new List<DankLaser>();
                 // Set the laser to fire every quarter second
                 fireTime = TimeSpan.FromSeconds(.15f);
-                dankTime = TimeSpan.FromSeconds(.4f);
+                dankTime = TimeSpan.FromSeconds(1f);
                 previousDankTime = TimeSpan.Zero;
                 explosions = new List<Animation>();
                 score = 0;
@@ -139,7 +153,7 @@ namespace DerpGame.Controller
 				Animation playerAnimation = new Animation();
                 
                     playerTexture = Content.Load<Texture2D>("Animation/shipAnimation");
-                
+                localTexture = Content.Load<Texture2D>("Animation/localPlayerAnimation");
                     dankBulletTexture = Content.Load<Texture2D>("Animation/rainbowBullet");
                 
                     psychBulletTexture = Content.Load<Texture2D>("Animation/solidRainbow");
@@ -283,7 +297,7 @@ namespace DerpGame.Controller
                                 if (objs[index].id == 2)
                                 {
                                     Projectile projectile = new Projectile();
-                                    projectile.Initialize(GraphicsDevice.Viewport, projectileTexture, new Vector2(objs[index].x, objs[index].y));
+                                    projectile.Initialize(GraphicsDevice.Viewport, projectileTexture, new Vector2(objs[index].x, objs[index].y), null);
                                     projectiles.Add(projectile);
                                 }
                                 if (objs[index].id == 3)
@@ -291,7 +305,7 @@ namespace DerpGame.Controller
                                     Animation dankBullet = new Animation();
                                     dankBullet.Initialize(dankBulletTexture, new Vector2(objs[index].x, objs[index].y), (dankBulletTexture.Width / 20), dankBulletTexture.Height, 20, 1, Color.White, 1f, true);
                                     DankLaser dank = new DankLaser();
-                                    dank.Initialize(GraphicsDevice.Viewport, dankBullet, new Vector2(objs[index].x, objs[index].y), objs[index].theta, 1);
+                                    dank.Initialize(GraphicsDevice.Viewport, dankBullet, new Vector2(objs[index].x, objs[index].y), objs[index].theta, 1,null);
                                     for (int i = 0; i < objs[index].Frame; i++)
                                     {
                                         dankBullet.Update(gameTime);
@@ -332,8 +346,13 @@ namespace DerpGame.Controller
                                 }
                                 if (objs[index].id == 7)
                                 {
+                                    Texture2D texture = playerTexture;
+                                    if (float.Equals(objs[index].theta, id))
+                                    {
+                                        texture = localTexture;
+                                    }
                                     Animation animate = new Animation();
-                                    animate.Initialize(playerTexture, new Vector2(objs[index].x, objs[index].y), 115, 69, 8, 30, Color.White, 1f, true);
+                                    animate.Initialize(texture, new Vector2(objs[index].x, objs[index].y), 115, 69, 8, 30, Color.White, 1f, true);
                                     for (int i = 0; i < objs[index].Frame; i++)
                                     {
                                         animate.Update(gameTime);
@@ -342,14 +361,28 @@ namespace DerpGame.Controller
                                 }
                                 if (objs[index].id == 8)
                                 {
+									Texture2D texture = playerTexture;
+									if (float.Equals(objs[index].theta, id))
+									{
+										texture = localTexture;
+									}
                                     Animation animate = new Animation();
-                                    animate.Initialize(playerTexture, new Vector2(objs[index].x, objs[index].y), 115, 69, 8, 30, Color.White, .75f, true);
+                                    animate.Initialize(texture, new Vector2(objs[index].x, objs[index].y), 115, 69, 8, 30, Color.White, .75f, true);
                                     for (int i = 0; i < objs[index].Frame; i++)
                                     {
                                         animate.Update(gameTime);
                                     }
                                     friends.Add(animate);
 
+                                }
+                                if(objs[index].id == 9)
+                                {
+									if (float.Equals(objs[index].theta, id))
+									{
+                                        this.health = (int)objs[index].x;
+                                        this.score = (int)objs[index].y;
+                                        this.maxScore = (int)objs[index].Frame;
+									}
                                 }
                             }
 
@@ -381,11 +414,21 @@ namespace DerpGame.Controller
                     UpdateExplosions(gameTime);
                     UpdatePops(gameTime);
                     List<SPoint> points = new List<SPoint>();
-
+                    int max = 0;
+                    foreach (Player player in players)
+                    {
+                        if(player.points>max)
+                        {
+                            max = player.points;
+                        }
+                    }
                     foreach(Player player in players)
                     {
-                        points.Add(new SPoint(player.Position.X,player.Position.Y, 0,7, player.animation.CurrentFrame + 1));
-                        points.Add(new SPoint(player.Friend.Position.X, player.Friend.Position.Y, 0, 8,player.animation.CurrentFrame + 1));
+                        String Id = player.Id.Replace(".", "");
+                        int id = int.Parse(Id);
+                        points.Add(new SPoint(player.Position.X,player.Position.Y, id,7, player.animation.CurrentFrame + 1));
+                        points.Add(new SPoint(player.Friend.Position.X, player.Friend.Position.Y, id, 8,player.animation.CurrentFrame + 1));
+                        points.Add(new SPoint(player.Health, player.points, id, 9, max));
 
                     }
                     foreach (Enemy enemy in enemies)
@@ -488,9 +531,10 @@ namespace DerpGame.Controller
                     {
                         friends[i].Draw(spriteBatch);
                     }
-                    //spriteBatch.DrawString(scoreFont, "score: " + score, new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y), Color.White);
+                    spriteBatch.DrawString(scoreFont, "score: " + score, new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y), Color.White);
                     // Draw the player health
-                    //spriteBatch.DrawString(scoreFont, "health: " + player.Health, new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y + 30), Color.White);
+                    spriteBatch.DrawString(scoreFont, "health: " + health, new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y + 30), Color.White);
+                    spriteBatch.DrawString(scoreFont, "Max:  " + maxScore, new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y + 60), Color.White);
                     // Stop drawing
                     spriteBatch.End();
                 }
@@ -514,24 +558,24 @@ namespace DerpGame.Controller
 		{
             bool resetTimings = false;
             bool otherTimings = false;
-            foreach (Player player in players)
+            foreach (Player p in players)
             {
-                player.Update(time);
-                if (player.spacePressed == true)
+                p.Update(time);
+                if (p.spacePressed == true)
                 {
                     if (megaLasers.Count == 0)
                     {
                         Animation dankBullet = new Animation();
-                        dankBullet.Initialize(psychBulletTexture, player.Position, (psychBulletTexture.Width / 6), psychBulletTexture.Height, 6, 1, Color.White, 1f, true);
+                        dankBullet.Initialize(psychBulletTexture, p.Position, (psychBulletTexture.Width / 6), psychBulletTexture.Height, 6, 1, Color.White, 1f, true);
                         MegaLaser laser = new MegaLaser();
-                        laser.Initialize(GraphicsDevice.Viewport, dankBullet, player.Position, 0, 1, 15, time.TotalGameTime.TotalSeconds);
+                        laser.Initialize(GraphicsDevice.Viewport, dankBullet, p.Position, 0, 1, 15, time.TotalGameTime.TotalSeconds);
                         megaLasers.Add(laser);
                     }
                     player.spacePressed = false;
                 }
                 // Make sure that the player does not go out of bounds
-                player.Position.X = MathHelper.Clamp(player.Position.X, 0, GraphicsDevice.Viewport.Width - player.Width);
-                player.Position.Y = MathHelper.Clamp(player.Position.Y, 0, GraphicsDevice.Viewport.Height - player.Height);
+                player.Position.X = MathHelper.Clamp(p.Position.X, 0, GraphicsDevice.Viewport.Width - p.Width);
+                player.Position.Y = MathHelper.Clamp(p.Position.Y, 0, GraphicsDevice.Viewport.Height - p.Height);
                 // Fire only every interval we set as the fireTime
                 if (time.TotalGameTime - (previousFireTime) > fireTime)
                 {
@@ -539,16 +583,16 @@ namespace DerpGame.Controller
                     otherTimings = true;
 
                     // Add the projectile, but add it to the front and center of the player
-                    AddProjectile(player.Position + new Vector2(player.Width / 2, 0));
+                    AddProjectile(player.Position + new Vector2(player.Width / 2, 0), p);
 
                 }
                 if (time.TotalGameTime - previousDankTime > dankTime)
                 {
                     resetTimings = true;
-                    int detail = random.Next(4, 9);
+                    int detail = random.Next(3, 5);
                     int max = detail * 2;
                     int start = random.Next(0, max - ((max * 2) / 3));
-                    addDank(player.Friend.Position, start, random.Next(start + 2, max), detail, 1);
+                    addDank(player.Friend.Position, start, random.Next(start + 2, max), detail, 1,p);
 
                 }
 
@@ -659,7 +703,10 @@ namespace DerpGame.Controller
 							// Add an explosion
 							//explosionSound.Play();
 							AddExplosion(enemies[i].Position);
-							this.score += 10;
+                            if (enemies[i].lastShot != null)
+                            {
+                                enemies[i].lastShot.points += 10;
+                            }
 						}
 						enemies.RemoveAt(i);
 					}
@@ -677,9 +724,12 @@ namespace DerpGame.Controller
 						// If not active and health <= 0
 						if (enemies[i].Health <= 0)
 						{
-							// Add an explosion
-							//popSound.Play();
-                            this.score += 5;
+                            // Add an explosion
+                            //popSound.Play();
+                            if (enemies[i].lastShot != null)
+                            {
+                                enemies[i].lastShot.points += 5;
+                            }
 							AddPop(enemies[i].Position);
 						}
 						enemies.RemoveAt(i);
@@ -781,6 +831,7 @@ namespace DerpGame.Controller
 				if (rectangle1.Intersects(rectangle2))
 				{
 					enemies[j].Health -= projectiles[i].Damage;
+                        enemies[j].lastShot = projectiles[i].player;
 					projectiles[i].Active = false;
 				}
 			}
@@ -836,30 +887,41 @@ namespace DerpGame.Controller
 		{
 			if (rainbowDudes[j].Health <= 0)
 			{
-
 				int gen = 1;
+                    Player killer = null;
+                    if(raindbowPewPews[j].Count>0)
+                    {
+
+						killer = raindbowPewPews[j][0].player;
+                    }
 				for (int index = 0; index < raindbowPewPews[j].Count; index++)
 				{
 					if (raindbowPewPews[j][index].Generation > gen)
 					{
 						gen = raindbowPewPews[j][index].Generation;
+                            killer = raindbowPewPews[j][index].player;
+                            for (int i = 0; index < 1000; index++)
+                            {
+                                Console.WriteLine("ok");
+                            }
 					}
 				}
-				int detail = random.Next(8, 15) * gen;
-				int max = detail * 2;
+                    rainbowDudes[j].lastShot = killer;
+                    int detail = random.Next(7, 10) * ((gen/3)+1);
+                    int max =(int) (detail * 1.5);
 				int start = random.Next(0, max - ((max * 3) / 4));
-				addDank(rainbowDudes[j].Position, start, random.Next(start + 3, max), detail, gen + 1);
+                    addDank(rainbowDudes[j].Position, start, random.Next(start + 3, max), detail, gen + 1, killer);
 			}
 		}
 
 	}
-	private void AddProjectile(Vector2 position)
+	private void AddProjectile(Vector2 position, Player p)
 	{
 		Projectile projectile = new Projectile();
-		projectile.Initialize(GraphicsDevice.Viewport, projectileTexture, position);
+		projectile.Initialize(GraphicsDevice.Viewport, projectileTexture, position, p);
 		projectiles.Add(projectile);
 	}
-	private void addDank(Vector2 position, int start, int end, int detail, int gen)
+	private void addDank(Vector2 position, int start, int end, int detail, int gen, Player p)
 	{
 
 		for (int index = start; index <= end; index++)
@@ -867,7 +929,7 @@ namespace DerpGame.Controller
 			Animation dankBullet = new Animation();
 			dankBullet.Initialize(dankBulletTexture, position, (dankBulletTexture.Width / 20), dankBulletTexture.Height, 20, 1, Color.White, 1f, true);
 			DankLaser dank = new DankLaser();
-			dank.Initialize(GraphicsDevice.Viewport, dankBullet, position, (float)((Math.PI / detail) * index), gen);
+			dank.Initialize(GraphicsDevice.Viewport, dankBullet, position, (float)((Math.PI / detail) * index), gen, p);
 			dankLasers.Add(dank);
 		}
 

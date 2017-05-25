@@ -1,14 +1,13 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-namespace DerpGame
+              namespace DerpGame.Model
 {
 
 	public class Projectile
 	{
 		// Image representing the Projectile
 		private Texture2D texture;
-
 		// Position of the Projectile relative to the upper left side of the screen
 		public Vector2 Position;
 
@@ -43,12 +42,13 @@ namespace DerpGame
 
 		// Determines how fast the projectile moves
 		private float projectileMoveSpeed;
-
+        public Player player;
 		public Projectile()
 		{
 		}
-		public void Initialize(Viewport viewport, Texture2D texture, Vector2 position)
+		public void Initialize(Viewport viewport, Texture2D texture, Vector2 position, Player player)
 		{
+            this.player = player;
 			this.texture = texture;
 			Position = position;
 			this.viewport = viewport;

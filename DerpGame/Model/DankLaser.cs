@@ -12,6 +12,7 @@ public class DankLaser
 		{
 			get { return texture;}
 		}
+        public Player player;
 		private float theta;
         public float Theta
         {
@@ -54,8 +55,9 @@ public class DankLaser
 	// Determines how fast the projectile moves
 	private float projectileMoveSpeed;
 
-	public void Initialize(Viewport viewport, Animation texture, Vector2 position, float theta , int generation)
+	public void Initialize(Viewport viewport, Animation texture, Vector2 position, float theta , int generation, Player player)
 	{
+            this.player = player;
 			this.generation = generation;
 			this.theta = theta;
 		this.texture = texture;
@@ -67,7 +69,7 @@ public class DankLaser
 
 			damage = 7 + generation * 2;
 
-			projectileMoveSpeed = 5f *((3f / generation));
+			projectileMoveSpeed = 8f *((3f / generation));
 	}
 		public void Update(GameTime time)
 	{

@@ -9,6 +9,7 @@ namespace DerpGame.Model
 	{
 		// Animation representing the enemy
 		public Animation EnemyAnimation;
+        public Player lastShot;
 		// The position of the enemy ship relative to the top left corner of thescreen
 		public Vector2 Position;
 		// The state of the Enemy Ship

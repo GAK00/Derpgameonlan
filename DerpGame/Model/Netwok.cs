@@ -79,8 +79,10 @@ namespace DerpGame.Model
             {
                 UdpClient Server = new UdpClient(8888);
                 Thread Recieve = new Thread(() => ServerRecive(Server));
+                Recieve.IsBackground = true;
                 Recieve.Start();
                 Sever = new Thread(() => SeverSend(Server));
+                Sever.IsBackground = true;
                 Sever.Start();
             }
         }
@@ -90,8 +92,10 @@ namespace DerpGame.Model
             {
                 UdpClient Client = new UdpClient();
                 Cli = new Thread(()=>ClientRecive(Client));
+                Cli.IsBackground = true;
                 Cli.Start();
                 Thread send = new Thread(() => ClientSend(Client));
+                send.IsBackground = true;
                 send.Start();
             }
         }
@@ -234,7 +238,7 @@ namespace DerpGame.Model
                         {
                             SPoint outPoint;
                             data.TryDequeue(out outPoint);
-                            if (outPoint == null)
+                            while (outPoint == null)
                             {
                                 Thread.Sleep(1);
                                 data.TryDequeue(out outPoint);
