@@ -16,6 +16,8 @@ namespace DerpGame.Model
         public int points = 0;
 		private Texture2D playerTexture;
 		private Friend friend;
+        public  TimeSpan TTL;
+        public float lastResponded;
 		public Friend Friend
 		{
 			get { return friend;}
@@ -70,6 +72,8 @@ namespace DerpGame.Model
 		{
 			movementSpeed = 4.25f;
 			friend = new Friend();
+            TTL = TimeSpan.FromMilliseconds(100f);
+            lastResponded = 0f;
 		}
 		public void Initialize(Animation animation, Vector2 position)
 		{
@@ -104,14 +108,19 @@ namespace DerpGame.Model
 		}
 		public void Update(GameTime gameTime)
 		{
+            if(health <= 0)
+            {
+                health = 100;
+                points = 0;
+            }
 			playerAnimation.Position = Position;
 			playerAnimation.Update(gameTime);
 			friend.Update(gameTime);
 		}
-		public void Draw(SpriteBatch spriteBatch)
-		{
-			playerAnimation.Draw(spriteBatch);
-			friend.Draw(spriteBatch);
-		}
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            playerAnimation.Draw(spriteBatch);
+            friend.Draw(spriteBatch);
+        }
 	}
 }

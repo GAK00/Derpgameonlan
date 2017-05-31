@@ -573,9 +573,8 @@ namespace DerpGame.Controller
                     }
                     player.spacePressed = false;
                 }
-                // Make sure that the player does not go out of bounds
-                player.Position.X = MathHelper.Clamp(p.Position.X, 0, GraphicsDevice.Viewport.Width - p.Width);
-                player.Position.Y = MathHelper.Clamp(p.Position.Y, 0, GraphicsDevice.Viewport.Height - p.Height);
+                p.Position.X = MathHelper.Clamp(p.Position.X, p.Width/2, GraphicsDevice.Viewport.Width - (p.Width/2));
+                p.Position.Y = MathHelper.Clamp(p.Position.Y, p.Width/2, GraphicsDevice.Viewport.Height - (p.Height/2));
                 // Fire only every interval we set as the fireTime
                 if (time.TotalGameTime - (previousFireTime) > fireTime)
                 {
@@ -583,7 +582,7 @@ namespace DerpGame.Controller
                     otherTimings = true;
 
                     // Add the projectile, but add it to the front and center of the player
-                    AddProjectile(player.Position + new Vector2(player.Width / 2, 0), p);
+                    AddProjectile(p.Position + new Vector2(p.Width / 2, 0), p);
 
                 }
                 if (time.TotalGameTime - previousDankTime > dankTime)
@@ -592,7 +591,8 @@ namespace DerpGame.Controller
                     int detail = random.Next(3, 5);
                     int max = detail * 2;
                     int start = random.Next(0, max - ((max * 2) / 3));
-                    addDank(player.Friend.Position, start, random.Next(start + 2, max), detail, 1,p);
+                    Console.WriteLine(player.Id);
+                    addDank(p.Friend.Position, start, random.Next(start + 2, max), detail, 1,p);
 
                 }
 
@@ -853,6 +853,7 @@ namespace DerpGame.Controller
 				if (rectangle1.Intersects(rectangle2))
 				{
 
+                        enemies[j].lastShot = dankLasers[i].player;
 					enemies[j].Health -= dankLasers[i].Damage;
 					if (!rainbowDudes.Contains(enemies[j]))
 					{
@@ -902,11 +903,9 @@ namespace DerpGame.Controller
                             killer = raindbowPewPews[j][index].player;
                             for (int i = 0; index < 1000; index++)
                             {
-                                Console.WriteLine("ok");
                             }
 					}
 				}
-                    rainbowDudes[j].lastShot = killer;
                     int detail = random.Next(7, 10) * ((gen/3)+1);
                     int max =(int) (detail * 1.5);
 				int start = random.Next(0, max - ((max * 3) / 4));

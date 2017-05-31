@@ -22,7 +22,8 @@ namespace DerpGame.Model
         private ConcurrentBag<IPEndPoint> clients;
         private Controller.DerpGame controller;
         Thread Sever;
-        Thread Cli;
+		Thread Cli;
+		private float currentT;
        public String request;
 
 
@@ -42,13 +43,13 @@ namespace DerpGame.Model
                 Client.EnableBroadcast = true;
             while (true)
             {
-                if (!request.Equals("null")&& !request.Contains("i"))
+                if (request != null && !request.Contains("i"))
                 {
                     var RequestData = Encoding.ASCII.GetBytes(request);
                     Client.Send(RequestData, RequestData.Length, new IPEndPoint(IPAddress.Broadcast, 8888));
                     request = "null";
                 }
-                Thread.Sleep(10);
+                Thread.Sleep(30);
             }
 
         }
@@ -78,6 +79,9 @@ namespace DerpGame.Model
             if (Sever == null || !Sever.IsAlive)
             {
                 UdpClient Server = new UdpClient(8888);
+                Thread count = new Thread(() => Count());
+                count.IsBackground = true;
+                count.Start();
                 Thread Recieve = new Thread(() => ServerRecive(Server));
                 Recieve.IsBackground = true;
                 Recieve.Start();
@@ -100,8 +104,60 @@ namespace DerpGame.Model
             }
         }
 
-            
 
+        public void Count()
+        {
+            while(true)
+            {
+                Thread.Sleep(1);
+                currentT++;
+                if((int)(currentT)%5000 == 0)
+                {
+                    Queue<Player> toKick = new Queue<Player>();
+                    foreach(Player player in controller.players)
+                    {
+                        if(5000< currentT - player.lastResponded)
+                        {
+                            toKick.Enqueue(player);
+                        }
+                    }
+                    while(toKick.Count >0)
+                    {
+                        Player current = toKick.Dequeue();
+						List<IPEndPoint> safe = new List<IPEndPoint>();
+						IPEndPoint Out;
+						while (!clients.IsEmpty)
+						{
+							clients.TryTake(out Out);
+                            if (Out != null && !Out.Address.ToString().Equals(current.Id))
+							{
+								safe.Add(Out);
+							}
+						}
+						foreach (IPEndPoint CLient in safe)
+						{
+							clients.Add(CLient);
+						}
+						Player POut;
+						List<Player> Psafe = new List<Player>();
+						while (!controller.players.IsEmpty)
+						{
+							controller.players.TryTake(out POut);
+                            if (POut != null && !POut.Id.Equals(current.Id))
+							{
+								Console.WriteLine(POut.Id);
+								Psafe.Add(POut);
+							}
+						}
+						foreach (Player CLient in Psafe)
+						{
+							controller.players.Add(CLient);
+						}
+					}
+
+                }
+            }
+        }
         public void StartClient(GameTime time)
         {
             killClient();
@@ -138,9 +194,9 @@ namespace DerpGame.Model
                         Vector2 playerPosition = new Vector2(controller.GraphicsDevice.Viewport.TitleSafeArea.X, controller.GraphicsDevice.Viewport.TitleSafeArea.Y
                         + controller.GraphicsDevice.Viewport.TitleSafeArea.Height / 2);
                         player.Initialize(animation, playerPosition, ClientEp.Address.ToString());
+						player.lastResponded = currentT;
                         controller.players.Add(player);
                         clients.Add(ClientEp);
-
                     }
                     else
                     {
@@ -151,6 +207,11 @@ namespace DerpGame.Model
                             if (currentPlayer != null && currentPlayer.Id.Equals(ClientEp.Address.ToString()))
                             {
                                 player = currentPlayer;
+                                player.lastResponded = currentT;
+                                for (int index = 0; index < 1000; index++)
+                                {
+                                    Console.WriteLine(currentT);
+                                }
                             }
                         }
 
